@@ -28,16 +28,23 @@ export function takeIngredient(kitchen, ingredientId) {
   return { ok: true };
 }
 
-// Put the held raw ingredient on the board and chop it once. Returns the
-// chop progress so the renderer can show the knife mid-swing.
+// Put the held raw ingredient on the board and chop it once; later clicks chop
+// the item already sitting on the board until it is done, then it returns to
+// the hand, chopped. Returns the chop progress for the renderer.
 export function chopOnBoard(kitchen) {
   const hand = kitchen.hand;
-  if (!hand || hand.kind !== 'ingredient') return { ok: false, reason: 'nothing-to-chop' };
-  if (hand.chopped) return { ok: false, reason: 'already-chopped' };
-  if (kitchen.board && kitchen.board.id !== hand.id) return { ok: false, reason: 'board-busy' };
-  if (!kitchen.board) kitchen.board = { id: hand.id, chopsDone: 0 };
+  if (hand && hand.kind === 'ingredient' && !hand.chopped) {
+    // Placing a fresh raw ingredient on the board.
+    if (kitchen.board && kitchen.board.id !== hand.id) return { ok: false, reason: 'board-busy' };
+    if (!kitchen.board) kitchen.board = { id: hand.id, chopsDone: 0 };
+    kitchen.hand = null;
+  } else if (!kitchen.board) {
+    return { ok: false, reason: 'nothing-to-chop' };
+  } else if (hand) {
+    return { ok: false, reason: 'hand-full' };
+  }
+  // Chop the item on the board once.
   kitchen.board.chopsDone += 1;
-  kitchen.hand = null;
   if (kitchen.board.chopsDone >= CHOPS_PER_ITEM) {
     const done = { kind: 'ingredient', id: kitchen.board.id, chopped: true };
     kitchen.board = null;

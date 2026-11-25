@@ -20,22 +20,22 @@ export const RECIPES = {
   nasiGoreng: {
     id: 'nasiGoreng', name: 'Nasi Goreng Senja', short: 'Nasi Goreng',
     needs: ['nasi', 'telur', 'cabai'], price: 28, color: '#f2a65e',
-    blurb: 'Nasi, telur, cabai — wajan panas, asap mengepul.',
+    blurb: 'Nasi + telur + cabai',
   },
   mieGoreng: {
     id: 'mieGoreng', name: 'Mie Goreng Pasar', short: 'Mie Goreng',
     needs: ['mie', 'ayam', 'sayur'], price: 32, color: '#ffd94d',
-    blurb: 'Mie kuning, ayam cincang, sayur segar.',
+    blurb: 'Mie + ayam + sayur',
   },
   tumisUdang: {
     id: 'tumisUdang', name: 'Tumis Udang Cabe', short: 'Tumis Udang',
     needs: ['udang', 'cabai', 'sayur'], price: 36, color: '#ff9d8a',
-    blurb: 'Udang pedas manis, cabai merah menyala.',
+    blurb: 'Udang + cabai + sayur',
   },
   omeletSenja: {
     id: 'omeletSenja', name: 'Omelet Senja', short: 'Omelet',
     needs: ['telur', 'ayam', 'sayur'], price: 30, color: '#ffe066',
-    blurb: 'Telur dadar isi ayam dan sayur, lipat rapi.',
+    blurb: 'Telur + ayam + sayur',
   },
 };
 

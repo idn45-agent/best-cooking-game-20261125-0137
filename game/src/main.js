@@ -86,8 +86,12 @@ function endDay(game) {
   const { state } = game;
   state.screen = 'dayEnd';
   state.timeLeft = 0;
-  state.score = state.coins + state.servedCount * 10 + state.bestCombo * 15;
+  updateScore(state);
   game.audio.stopSizzle();
+}
+
+function updateScore(state) {
+  state.score = state.coins + state.servedCount * 10 + state.bestCombo * 15;
 }
 
 function serveOrder(game, order, nowMs) {
@@ -111,6 +115,7 @@ function serveOrder(game, order, nowMs) {
   state.servedDishes.push(order.recipeId);
   order.served = true;
   kitchen.hand = null;
+  updateScore(state);
   setMessage(state, `Tersaji! +${reward.total} koin (${order.recipe.short})`, true, nowMs);
   game.audio.ding();
   game.audio.coin();
@@ -240,6 +245,7 @@ function tick(game, dtSeconds, nowMs) {
   }
   if (kitchen.wok.length > 0) game.audio.setSizzleLevel(kitchen.wok.length / 4);
   else game.audio.stopSizzle();
+  updateScore(state);
   if (nowMs > state.messageUntil) state.message = '';
   if (nowMs > state.flashUntil) state.flash = null;
 }
@@ -253,8 +259,8 @@ function sceneOrder(game, recipeId, patienceLeft) {
 }
 
 function applyShot(game, shot) {
-  const { state, kitchen } = game;
   startDay(game);
+  const { state, kitchen } = game;
   state.frozen = true;
   state.screen = 'playing';
   game.rng = makeRng(20261125);
@@ -283,6 +289,7 @@ function applyShot(game, shot) {
     state.timeLeft = 120;
     state.coins = 96;
     state.combo = 1;
+    state.bestCombo = 1;
     state.servedCount = 2;
     state.servedDishes = ['nasiGoreng'];
     sceneOrder(game, 'mieGoreng', 38);
@@ -321,6 +328,7 @@ function applyShot(game, shot) {
     state.servedDishes = ['nasiGoreng', 'mieGoreng', 'tumisUdang', 'omeletSenja', 'nasiGoreng'];
     sceneOrder(game, 'nasiGoreng', 20);
   }
+  state.score = state.coins + state.servedCount * 10 + state.bestCombo * 15;
 }
 
 // ---------- boot ----------

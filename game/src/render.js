@@ -203,9 +203,9 @@ function drawTopBar(ctx, game) {
   text(ctx, `⏱ ${mm}:${ss}`, 640, 41, 26, urgent ? '#a11' : '#33261a', 'center');
   text(ctx, `HARI ${state.day}`, 740, 40, 18, '#e8d9b0');
   // Coins and score.
-  text(ctx, `🪙 ${state.coins}`, 900, 40, 24, COLORS.gold, 'right');
-  text(ctx, `Skor ${state.score}`, 1010, 40, 18, '#fff3d6', 'right');
-  text(ctx, state.combo > 1 ? `🔥 Combo x${state.combo}` : '', 1120, 40, 18, '#ff9d5c', 'left');
+  text(ctx, `🪙 ${state.coins}`, 880, 40, 24, COLORS.gold, 'right');
+  text(ctx, `Skor ${state.score}`, 990, 40, 18, '#fff3d6', 'right');
+  text(ctx, state.combo > 1 ? `🔥 x${state.combo}` : '', 1010, 40, 18, '#ff9d5c', 'left');
   text(ctx, game.audio.muted ? '🔇 M' : '🔊 M', 1252, 40, 16, '#e8d9b0', 'right');
 }
 
@@ -335,30 +335,30 @@ function drawWok(ctx, game, input, t) {
   text(ctx, '🔥 WAJAN — klik / Spasi untuk mengaduk', w.x + 12, w.y + 24, 14, '#ffd98a');
   const cx = w.x + w.w / 2;
   const cy = w.y + 108;
-  // Flames.
-  for (let i = 0; i < 5; i++) {
-    const fx = cx - 66 + i * 33;
-    const flick = Math.sin(t * 9 + i * 1.7) * 4;
-    ctx.fillStyle = i % 2 ? COLORS.flameB : COLORS.flameA;
-    ctx.beginPath();
-    ctx.moveTo(fx - 12, cy + 34);
-    ctx.quadraticCurveTo(fx, cy - 26 - flick, fx + 12, cy + 34);
-    ctx.closePath();
-    ctx.fill();
-  }
-  ctx.fillStyle = COLORS.flameC;
-  ctx.beginPath();
-  ctx.moveTo(cx - 8, cy + 34);
-  ctx.quadraticCurveTo(cx, cy - 8, cx + 8, cy + 34);
-  ctx.closePath();
-  ctx.fill();
-  // Wok body.
+  // Wok body first; flames are drawn after it, licking out from under the pan.
   ctx.fillStyle = COLORS.wok;
   ctx.beginPath(); ctx.ellipse(cx, cy + 6, 108, 44, 0, 0, Math.PI * 2); ctx.fill();
   ctx.strokeStyle = COLORS.wokRim; ctx.lineWidth = 5;
   ctx.beginPath(); ctx.ellipse(cx, cy + 6, 108, 44, 0, Math.PI, Math.PI * 2); ctx.stroke();
   ctx.strokeStyle = '#7d8894'; ctx.lineWidth = 6;
   ctx.beginPath(); ctx.moveTo(cx + 104, cy - 6); ctx.lineTo(cx + 152, cy - 26); ctx.stroke();
+  // Flames under the wok: tongues of fire peeking out below the rim.
+  for (let i = 0; i < 5; i++) {
+    const fx = cx - 66 + i * 33;
+    const flick = Math.sin(t * 9 + i * 1.7) * 5;
+    ctx.fillStyle = i % 2 ? COLORS.flameB : COLORS.flameA;
+    ctx.beginPath();
+    ctx.moveTo(fx - 11, cy + 76);
+    ctx.quadraticCurveTo(fx, cy + 30 - flick, fx + 11, cy + 76);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.fillStyle = COLORS.flameC;
+  ctx.beginPath();
+  ctx.moveTo(cx - 8, cy + 76);
+  ctx.quadraticCurveTo(cx, cy + 42, cx + 8, cy + 76);
+  ctx.closePath();
+  ctx.fill();
   // Contents.
   kitchen.wok.forEach((item, i) => {
     const angle = -0.9 + i * 0.6;
@@ -408,7 +408,7 @@ function drawPlateShelf(ctx, game, input) {
   ctx.fillStyle = '#00000033';
   roundRect(ctx, p.x, p.y, p.w, p.h, 10);
   ctx.fill();
-  text(ctx, '🍽️ PIRING SAJI — klik untuk ambil', p.x + 12, p.y + 24, 14, '#ffd98a');
+  text(ctx, '🍽️ PIRING SAJI', p.x + 12, p.y + 24, 14, '#ffd98a');
   const cx = p.x + p.w / 2;
   const cy = p.y + 108;
   if (kitchen.plate) {
@@ -440,7 +440,7 @@ function drawTrash(ctx, game, input) {
   ctx.fillStyle = hover ? '#7a2e2e' : '#5a2323';
   roundRect(ctx, tr.x, tr.y, tr.w, tr.h, 10);
   ctx.fill();
-  text(ctx, '🗑️ TEMPAT SAMPAH — klik untuk membuang isi tangan / wajan', tr.x + 16, tr.y + 30, 14, '#ffd9d9');
+  text(ctx, '🗑️ TEMPAT SAMPAH — klik buang', tr.x + 16, tr.y + 30, 14, '#ffd9d9');
   text(ctx, `Terbuang: ${kitchen.trashCount}x`, tr.x + 16, tr.y + 54, 12, '#e8b0b0', 'left', 'normal');
   if (kitchen.wok.some((i) => i.burnt)) {
     text(ctx, '⚠️ Ada bahan gosong di wajan!', tr.x + tr.w - 16, tr.y + 54, 12, COLORS.gold, 'right');
@@ -498,11 +498,10 @@ function drawBottomBar(ctx, game, input) {
   } else {
     text(ctx, 'kosong — ambil bahan dari keranjang', 120, 656, 15, '#e8d9b0', 'left', 'normal');
   }
-  // Controls hint.
+  // Controls hint (left) and the latest message (right, so they never meet).
   text(ctx, '1-7 bahan · C potong · Spasi aduk · P piring · S antar · R ulang · M suara', 24, 694, 14, '#cbb894', 'left', 'normal');
-  // Message flash line.
   if (state.message) {
-    text(ctx, state.message, 640, 694, 15, state.messageGood ? COLORS.green : COLORS.red, 'center');
+    text(ctx, state.message, 1256, 656, 15, state.messageGood ? COLORS.green : '#ff8a8a', 'right');
   }
 }
 
